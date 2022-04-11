@@ -72,7 +72,9 @@ public class TestNimbusJose {
         testJWSOctetKeyPair(Curve.Ed25519, JWSAlgorithm.EdDSA);
 
         testJWERSA(2048,JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A128CBC_HS256);
-        testJWERSA(4096,JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A128CBC_HS256);
+        //testJWERSA(4096,JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A128CBC_HS256);
+        //testJWERSA(4096,JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A192GCM);
+    }
     }
 
     public static String getKeyId() {
