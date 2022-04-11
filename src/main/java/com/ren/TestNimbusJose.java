@@ -46,7 +46,7 @@ import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 
-import com.ren.Common.*;
+import static com.ren.Common.*;
 
 /**
  * 
