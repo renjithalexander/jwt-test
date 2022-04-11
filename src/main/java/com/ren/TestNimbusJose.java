@@ -254,16 +254,5 @@ public class TestNimbusJose {
 
     }
 
-    static void p(String str) {
-        System.out.println(str);
-    }
-
-    static Date now() {
-        return new Date();
-    }
-
-    static Date later() {
-        return new Date(System.currentTimeMillis() + 8 * 60 * 60 * 1000);
-    }
 
 }
