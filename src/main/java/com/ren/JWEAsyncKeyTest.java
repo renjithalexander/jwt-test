@@ -3,46 +3,21 @@
  */
 package com.ren;
 
-import static com.ren.Common.getPayload;
-import static com.ren.Common.getSecret;
-import static com.ren.Common.issuer;
-import static com.ren.Common.later;
-import static com.ren.Common.name;
-import static com.ren.Common.now;
-import static com.ren.Common.roles;
-import static com.ren.Common.secret;
 import static com.ren.Common.strPayload;
 import static com.ren.Common.timedRunE;
 
 import java.io.UnsupportedEncodingException;
-import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
-import org.jose4j.jwa.AlgorithmConstraints.ConstraintType;
-import org.jose4j.jws.AlgorithmIdentifiers;
-import org.jose4j.jws.JsonWebSignature;
-import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.MalformedClaimException;
-import org.jose4j.jwt.consumer.ErrorCodes;
-import org.jose4j.jwt.consumer.InvalidJwtException;
-import org.jose4j.jwt.consumer.JwtConsumer;
-import org.jose4j.jwt.consumer.JwtConsumerBuilder;
-import org.jose4j.keys.HmacKey;
 import org.jose4j.lang.JoseException;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.JWTVerifier;
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.JWEHeader;
@@ -51,13 +26,6 @@ import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.DirectDecrypter;
 import com.nimbusds.jose.crypto.RSADecrypter;
 import com.nimbusds.jose.crypto.RSAEncrypter;
-import com.ren.Common.Decoder;
-import com.ren.Common.Encoder;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 
 /**
  * 
