@@ -27,7 +27,7 @@ import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
  * 
  * @author <a href="mailto:renjithalexander@gmail.com">Renjith Alexander</a>
  */
-public class JWSAsyncKeyTest {
+public class JWSAsymmetricKeyTest {
 
     public static void main(String[] args) throws Exception {
         testJavaJWT(false);
