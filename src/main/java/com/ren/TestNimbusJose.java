@@ -80,36 +80,6 @@ public class TestNimbusJose {
         return String.valueOf(counter.incrementAndGet());
     }
 
-    public static <T> T timedRun(TimedRunnable<T> r, String text) {
-        try {
-            return timedRunE(r::run, text);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static <T> T timedRunE(RunnableWithException<T> r, String text, int count) throws Exception {
-        r.run();// warm up
-        T result = null;
-        long t = System.nanoTime();
-        for (int i = 0; i < count; ++i)
-            result = r.run();
-        t = (System.nanoTime() - t) / count;
-        System.out.println(text + " - " + (t / 1000) + " micros");
-        return result;
-    }
-
-    private static <T> T timedRunE(RunnableWithException<T> r, String text) throws Exception {
-        r.run();// warm up
-        T result = null;
-        long t = System.nanoTime();
-        result = r.run();
-        t = System.nanoTime() - t;
-        System.out.println(text + " - " + (t / 1000) + " micros");
-        return result;
-    }
-
     public static void testJWSSymmetric(int key_len, JWSAlgorithm jwsAlgo) throws Exception {
 
         String print = "nimbus-jose JWS HMAC" + key_len + " with JWSAlgorithm " + jwsAlgo + " ";
