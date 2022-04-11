@@ -25,13 +25,13 @@ public class Main {
         case "jwe":
             JWETest.main(args);
             break;
-        case "jweasync":
-            JWEAsyncKeyTest.main(args);
+        case "jweasymmetric":
+            JWEAsymmetricKeyTest.main(args);
             break;
         case "jws":
             JWSTest.main(args);
-        case "jwsasync":
-            JWSAsyncKeyTest.main(args);
+        case "jwsasymmetric":
+            JWSAsymmetricKeyTest.main(args);
             break;
         default: System.out.println("Invalid argument: " + execute);
         }
