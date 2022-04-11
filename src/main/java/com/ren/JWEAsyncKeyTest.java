@@ -36,7 +36,7 @@ import com.nimbusds.jose.crypto.RSAEncrypter;
  *
  * 
  */
-public class JWEAsyncKeyTest {
+public class JWEAsymmetricKeyTest {
 
     
 
