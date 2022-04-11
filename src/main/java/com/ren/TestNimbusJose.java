@@ -8,7 +8,6 @@ import java.security.KeyPairGenerator;
 import java.security.SecureRandom;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.crypto.KeyGenerator;
@@ -217,7 +216,7 @@ public class TestNimbusJose {
         keyGenerator.init(enc.cekBitLength());
         SecretKey cek = keyGenerator.generateKey();
 
-        testJWE(print, new RSAEncrypter(rsaPublicKey), new RSADecrypter(rsaPrivateKey), cek, alg, enc);
+        testJWE(print, new RSAEncrypter(rsaPublicKey, cek), new RSADecrypter(rsaPrivateKey), cek, alg, enc);
 
     }
 
