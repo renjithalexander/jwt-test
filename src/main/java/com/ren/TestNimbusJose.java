@@ -110,7 +110,7 @@ public class TestNimbusJose {
             jwsObject.sign(signer);
 
             return jwsObject.serialize();
-        }, print + "TE", 100);
+        }, print + "[Generate]", 100);
 
         String payload = timedRunE(() -> {
             JWSObject jwsObject = JWSObject.parse(jws);
@@ -121,7 +121,7 @@ public class TestNimbusJose {
             }
             return jwsObject.getPayload().toString();
 
-        }, print + "TD", 100);
+        }, print + "[Validate]", 100);
         if (!strPayload.equals(payload)) {
             throw new RuntimeException("Invalid verification");
         }
@@ -193,7 +193,7 @@ public class TestNimbusJose {
             jwsObject.sign(signer);
 
             return jwsObject.serialize();
-        }, print + "TE", 100);
+        }, print + "[Generate]", 100);
 
         String payload = timedRunE(() -> {
             JWSObject jwsObject = JWSObject.parse(jws);
@@ -204,7 +204,7 @@ public class TestNimbusJose {
             }
             return jwsObject.getPayload().toString();
 
-        }, print + "TD", 100);
+        }, print + "[Validate]", 100);
         if (!strPayload.equals(payload)) {
             throw new RuntimeException("Invalid verification");
         }
@@ -239,14 +239,14 @@ public class TestNimbusJose {
             JWEObject jwe = new JWEObject(new JWEHeader(alg, enc), new Payload(strPayload));
             jwe.encrypt(encryptor);
             return jwe.serialize();
-        }, print + "TE", 1000);
+        }, print + "[Generate]", 1000);
 
         String payload = timedRunE(() -> {
             JWEObject jwe = JWEObject.parse(jws);
             jwe.decrypt(decryptor);
 
             return jwe.getPayload().toString();
-        }, print + "TD Private key decrypt", 100);
+        }, print + "[Validate] Private key decrypt", 100);
 
         if (!strPayload.equals(payload)) {
             throw new RuntimeException("Invalid decryption");
@@ -257,7 +257,7 @@ public class TestNimbusJose {
             JWEObject jwe = JWEObject.parse(jws);
             jwe.decrypt(new DirectDecrypter(cek, true));
             return jwe.getPayload().toString();
-        }, print + "TD Symmetric key decrypt", 100);
+        }, print + "[Validate] Symmetric key decrypt", 100);
 
         if (!strPayload.equals(payload)) {
             throw new RuntimeException("Invalid decryption");
@@ -272,7 +272,7 @@ public class TestNimbusJose {
      * @throws Exception
      */
     public static void testJWEJWSAES() throws Exception {
-        String print = "nimbus-jose JWE RAS256 JWSAlgorithm HS256 JWEAlgorithm DIR EncryptionMethod A128CBC_HS256 ";
+        String print = "nimbus-jose JWS&JWE RAS256 JWSAlgorithm HS256 JWEAlgorithm DIR EncryptionMethod A128CBC_HS256 ";
         byte[] decoded = getSecret(false);
         String tok = timedRunE(() -> {
             JWSSigner signer = new MACSigner(decoded);
@@ -286,7 +286,7 @@ public class TestNimbusJose {
             jweObject.encrypt(new DirectEncrypter(decoded));
             return jweObject.serialize();
 
-        }, print + "TE ");
+        }, print + "[Generate] ");
 
         String payload = timedRunE(() -> {
             JWEObject jweObject = JWEObject.parse(tok);
@@ -294,7 +294,7 @@ public class TestNimbusJose {
             SignedJWT signedJWT = jweObject.getPayload().toSignedJWT();
             signedJWT.verify(new MACVerifier(decoded));
             return signedJWT.getJWTClaimsSet().getSubject();
-        }, print + "TD");
+        }, print + "[Validate]");
 
         if (!strPayload.equals(payload)) {
             throw new RuntimeException("Invalid decryption/signing");

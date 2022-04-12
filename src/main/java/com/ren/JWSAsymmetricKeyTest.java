@@ -84,7 +84,7 @@ public class JWSAsymmetricKeyTest {
             // maXlS9DhN0nUk_hGI3amEjkKd0BWYCB8vfUbUv0XGjQip78AI4z1PrFRNidm7
             // -jPDm5Iq0SZnjKjCNS5Q15fokXZc8u0A
             return jwsObject.serialize();
-        }, print + "TE", 1000);
+        }, print + "[Generate]", 1000);
 
         JWSVerifier verifier = new RSASSAVerifier(rsaPublicJWK);
         // String payload =
@@ -97,7 +97,7 @@ public class JWSAsymmetricKeyTest {
             }
             return jwsObject.getPayload().toString();
 
-        }, print + "TD", 1000);
+        }, print + "[Validate]", 1000);
 
         // System.out.println("Payload = " + payload);
 

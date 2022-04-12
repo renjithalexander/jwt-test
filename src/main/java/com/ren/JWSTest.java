@@ -10,7 +10,6 @@ import static com.ren.Common.later;
 import static com.ren.Common.name;
 import static com.ren.Common.now;
 import static com.ren.Common.roles;
-import static com.ren.Common.secret;
 import static com.ren.Common.strPayload;
 import static com.ren.Common.timedRunE;
 
@@ -75,7 +74,7 @@ public class JWSTest {
 
 
     public static void testJose4j() throws JoseException, MalformedClaimException, UnsupportedEncodingException {
-        Key key = new HmacKey((secret).getBytes("UTF-8"));
+        Key key = new HmacKey((getSecret(false)));
 
         long t = System.nanoTime();
         JwtClaims claims = new JwtClaims();
@@ -129,7 +128,7 @@ public class JWSTest {
         // to "jwt".
         String jwt = jws.getCompactSerialization();
         t = System.nanoTime() - t;
-        System.out.println("TE " + t);
+        System.out.println("[Generate] " + t);
 
         // Now you can do something with the JWT. Like send it to some other
         // party
@@ -181,7 +180,7 @@ public class JWSTest {
             // Validate the JWT and process it to the Claims
             JwtClaims jwtClaims = jwtConsumer.processToClaims(jwt);
             t = System.nanoTime() - t;
-            System.out.println("TD " + t);
+            System.out.println("[Validate] " + t);
             System.out.println("JWT validation succeeded! " + jwtClaims);
         } catch (InvalidJwtException e) {
             // InvalidJwtException will be thrown, if the JWT failed processing
@@ -268,13 +267,13 @@ public class JWSTest {
         byte[] secret = getSecret(hmac512);
         Algorithm jwtAlgorithm = hmac512 ? Algorithm.HMAC512(secret) : Algorithm.HMAC256(secret);
         String print = "java jwt " + (hmac512 ? "HS512" : "HS256") + " ";
-        final String token = timedRunE(() -> getPayload(Integer.parseInt(name)).sign(jwtAlgorithm), print + "TE", 1000);
+        final String token = timedRunE(() -> getPayload(Integer.parseInt(name)).sign(jwtAlgorithm), print + "[Generate]", 1000);
 
         timedRunE(() -> {
             JWTVerifier jwtVerifier = JWT.require(jwtAlgorithm).withIssuer(issuer)
                     .withClaim("name", String.valueOf(name)).withArrayClaim("roles", roles).build();
             return jwtVerifier.verify(token);
-        }, print + "TD", 1000);
+        }, print + "[Validate]", 1000);
     }
 
 
@@ -303,13 +302,13 @@ public class JWSTest {
         };
 
         String print = "jose " + (hmac512 ? "HS512" : "HS256") + " ";
-        String token = timedRunE(encode, print + "TE", 1000);
+        String token = timedRunE(encode, print + "[Generate]", 1000);
 
         JwtClaims claims = timedRunE(() -> {
             JwtConsumer jwtConsumer = new JwtConsumerBuilder().setRequireExpirationTime()
                     .setAllowedClockSkewInSeconds(30).setExpectedIssuer(issuer).setVerificationKey(key).build();
             return jwtConsumer.processToClaims(token);
-        }, print + "TD", 1000);
+        }, print + "[Validate]", 1000);
         assert claims.getClaimValue("name").equals(name);
 
     }
@@ -325,10 +324,10 @@ public class JWSTest {
             claims.put("roles", roles);
             return Jwts.builder().setIssuer(issuer).setExpiration(later()).setIssuedAt(now()).signWith(key)
                     .addClaims(claims).compact();
-        }, print + "TE", 1000);
+        }, print + "[Generate]", 1000);
 
         Jws<Claims> claims = timedRunE(() -> Jwts.parserBuilder().require("name", name).requireIssuer(issuer)
-                .setSigningKey(key).build().parseClaimsJws(jws), print + "TD", 1000);
+                .setSigningKey(key).build().parseClaimsJws(jws), print + "[Validate]", 1000);
         assert !claims.toString().isEmpty();
     }
 
@@ -360,7 +359,7 @@ public class JWSTest {
             // maXlS9DhN0nUk_hGI3amEjkKd0BWYCB8vfUbUv0XGjQip78AI4z1PrFRNidm7
             // -jPDm5Iq0SZnjKjCNS5Q15fokXZc8u0A
             return jwsObject.serialize();
-        }, print + "TE", 1000);
+        }, print + "[Generate]", 1000);
 
         JWSVerifier verifier = new RSASSAVerifier(rsaPublicJWK);
         //String payload = 
@@ -373,7 +372,7 @@ public class JWSTest {
             }
             return jwsObject.getPayload().toString();
 
-        }, print + "TD", 1000);
+        }, print + "[Validate]", 1000);
 
         //System.out.println("Payload = " + payload);
 

@@ -93,7 +93,7 @@ public class JWEAsymmetricKeyTest {
             JWEObject jwe = new JWEObject(new JWEHeader(alg, enc), new Payload(strPayload));
             jwe.encrypt(new RSAEncrypter(rsaPublicKey, cek));
             return jwe.serialize();
-        }, print + "TE", 1000);
+        }, print + "[Generate]", 1000);
 
         // String payload =
         timedRunE(() -> {
@@ -102,7 +102,7 @@ public class JWEAsymmetricKeyTest {
             jwe.decrypt(new RSADecrypter(rsaPrivateKey));
 
             return jwe.getPayload().toString();
-        }, print + "TD Private key decrypt", 1000);
+        }, print + "[Validate] Private key decrypt", 1000);
         
         // String payload =
         timedRunE(() -> {
@@ -110,7 +110,7 @@ public class JWEAsymmetricKeyTest {
             JWEObject jwe = JWEObject.parse(jws);
             jwe.decrypt(new DirectDecrypter(cek, true));
             return jwe.getPayload().toString();
-        }, print + "TD Symmetric key decrypt", 1000);
+        }, print + "[Validate] Symmetric key decrypt", 1000);
 
         // System.out.println("Payload = " + payload);
 
