@@ -75,7 +75,6 @@ public class TestNimbusJose {
         //testJWERSA(4096,JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A128CBC_HS256);
         //testJWERSA(4096,JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A192GCM);
     }
-    }
 
     public static String getKeyId() {
         return String.valueOf(counter.incrementAndGet());
