@@ -1,6 +1,6 @@
 package com.ren;
 
-
+import java.util.Base64;
 import java.util.Date;
 
 import com.auth0.jwt.JWT;
@@ -17,7 +17,7 @@ import com.auth0.jwt.interfaces.JWTVerifier;
  * @author <a href="mailto:renjithalexander@gmail.com">Renjith Alexander</a>
  */
 public class Common {
-    
+
     static String issuer = "issuer.company.com";
     static String name = "renjithalexander";
     static String[] roles = { "Software Developer", "Lead" };
@@ -34,34 +34,31 @@ public class Common {
         return new Date(System.currentTimeMillis() + 8 * 60 * 60 * 1000);
     }
 
-    
-    public static String secret = "abcdefghijklmnopqrstuvwxyz123456";
-    
+    private static byte[] secret256 = Base64.getDecoder().decode("nHQCBJW70WtHAoevqOPX9SXvlUb0cFOMYmIid4IczS0=");
+
+    private static byte[] secret512 = new byte[secret256.length * 2];
+
     public static String strPayload = "{\n" + "   \"scope\":\n" + "   [\n" + "      \"all_applications\",\n"
             + "      \"any_application\"\n" + "   ],\n" + "   \"realm\":\"renjith.com\",\n"
             + "   \"role\":[\"software developer\", \"Lead\"],\n" + "   \"user_id\":\"renjith\",\n"
-            + "   \"auth-type\":\"Bearer\",\n" + "   \"iss\": \"someissuer.company.com\",\n" + "   \"exp\": 1649317309,\n"
-            + "   \"iat\": 1649310109,\n" + "   \"user_id\":\"renjithalexander@gmail.com\",\n" + "}";
-    
+            + "   \"auth-type\":\"Bearer\",\n" + "   \"iss\": \"someissuer.company.com\",\n"
+            + "   \"exp\": 1649317309,\n" + "   \"iat\": 1649310109,\n"
+            + "   \"user_id\":\"renjithalexander@gmail.com\",\n" + "}";
+
     public static Algorithm jwtAlgorithm;
     public static JWTVerifier jwtVerifier;
 
-    
-
     static {
-        jwtAlgorithm = Algorithm.HMAC256(secret);
+        System.arraycopy(secret256, 0, secret512, 0, secret256.length);
+        System.arraycopy(secret256, 0, secret512, secret256.length, secret256.length);
+        jwtAlgorithm = Algorithm.HMAC256(secret256);
         jwtVerifier = JWT.require(jwtAlgorithm).withIssuer("issuer.company.com").build();
     }
 
-    
-    public static String getSecret(boolean fiveTwelve) {
-        if (fiveTwelve) {
-            return secret + secret;
-        }
-        return secret;
+    public static byte[] getSecret(boolean fiveTwelve) {
+        return fiveTwelve ? secret512 : secret256;
     }
-    
-    
+
     public static <T> T timedRun(TimedRunnable<T> r, String text) {
         try {
             return timedRunE(r::run, text);
@@ -85,8 +82,7 @@ public class Common {
     public static <T> T timedRunE(RunnableWithException<T> r, String text) throws Exception {
         return timedRunE(r, text, 1);
     }
-    
-    
+
     public static Builder getPayload(int userId) {
         return JWT.create().withIssuer(issuer).withClaim("name", String.valueOf(userId)).withIssuedAt(now())
                 .withExpiresAt(later()).withArrayClaim("roles", roles);

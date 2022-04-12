@@ -3,11 +3,18 @@
  */
 package com.ren;
 
+import static com.ren.Common.getSecret;
+import static com.ren.Common.later;
+import static com.ren.Common.now;
+import static com.ren.Common.strPayload;
+import static com.ren.Common.timedRunE;
+
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.SecureRandom;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.crypto.KeyGenerator;
@@ -18,6 +25,7 @@ import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.JWEDecrypter;
 import com.nimbusds.jose.JWEEncrypter;
 import com.nimbusds.jose.JWEHeader;
+import com.nimbusds.jose.JWEHeader.Builder;
 import com.nimbusds.jose.JWEObject;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -26,6 +34,7 @@ import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.DirectDecrypter;
+import com.nimbusds.jose.crypto.DirectEncrypter;
 import com.nimbusds.jose.crypto.ECDSASigner;
 import com.nimbusds.jose.crypto.ECDSAVerifier;
 import com.nimbusds.jose.crypto.Ed25519Signer;
@@ -44,8 +53,8 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
-
-import static com.ren.Common.*;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 
 /**
  * 
@@ -71,9 +80,11 @@ public class TestNimbusJose {
         testJWSEC(Curve.P_521, JWSAlgorithm.ES512);
         testJWSOctetKeyPair(Curve.Ed25519, JWSAlgorithm.EdDSA);
 
-        testJWERSA(2048,JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A128CBC_HS256);
-        //testJWERSA(4096,JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A128CBC_HS256);
-        //testJWERSA(4096,JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A192GCM);
+        testJWERSA(2048, JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A128CBC_HS256);
+        // testJWERSA(4096,JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A128CBC_HS256);
+        // testJWERSA(4096,JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A192GCM);
+
+        testJWEJWSAES();
     }
 
     public static String getKeyId() {
@@ -203,7 +214,7 @@ public class TestNimbusJose {
 
     public static void testJWERSA(int keyLen, JWEAlgorithm alg, EncryptionMethod enc) throws Exception {
 
-        String print = "nimbus-jose JWE RAS" + keyLen + " JWEAlgorithm " + alg + " EncryptionMethod " + enc + " ";
+        String print = "nimbus-jose JWE RSA" + keyLen + " JWEAlgorithm " + alg + " EncryptionMethod " + enc + " ";
 
         // Generate an RSA key pair
         KeyPairGenerator rsaGen = KeyPairGenerator.getInstance("RSA");
@@ -254,5 +265,51 @@ public class TestNimbusJose {
 
     }
 
+    /**
+     * Signed encrypted token with 32 bit key used for both signing and encrypting
+     * the encryption token.
+     * 
+     * @throws Exception
+     */
+    public static void testJWEJWSAES() throws Exception {
+        String print = "nimbus-jose JWE RAS256 JWSAlgorithm HS256 JWEAlgorithm DIR EncryptionMethod A128CBC_HS256 ";
+        byte[] decoded = getSecret(false);
+        String tok = timedRunE(() -> {
+            JWSSigner signer = new MACSigner(decoded);
+
+            SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), buildJWTClaimsSet(strPayload));
+            signedJWT.sign(signer);
+            Builder jweHeader = new JWEHeader.Builder(JWEAlgorithm.DIR, EncryptionMethod.A128CBC_HS256);
+            Payload payload = new Payload(signedJWT);
+
+            JWEObject jweObject = new JWEObject(jweHeader.contentType("JWT").build(), payload);
+            jweObject.encrypt(new DirectEncrypter(decoded));
+            return jweObject.serialize();
+
+        }, print + "TE ");
+
+        String payload = timedRunE(() -> {
+            JWEObject jweObject = JWEObject.parse(tok);
+            jweObject.decrypt(new DirectDecrypter(decoded));
+            SignedJWT signedJWT = jweObject.getPayload().toSignedJWT();
+            signedJWT.verify(new MACVerifier(decoded));
+            return signedJWT.getJWTClaimsSet().getSubject();
+        }, print + "TD");
+
+        if (!strPayload.equals(payload)) {
+            throw new RuntimeException("Invalid decryption/signing");
+        }
+
+    }
+
+    private static JWTClaimsSet buildJWTClaimsSet(String sub) {
+        String tokenJSON = sub;
+        Date currentTime = now();
+        Date expiryTime = later();
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().subject(tokenJSON).issuer("somecompany.com")
+                .issueTime(currentTime).jwtID("1b0e1c9797ad4d1bcc97c98a90b7b060952fa81a").expirationTime(expiryTime)
+                .build();
+        return claimsSet;
+    }
 
 }

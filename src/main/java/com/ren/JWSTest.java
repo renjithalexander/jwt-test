@@ -265,7 +265,7 @@ public class JWSTest {
     }
 
     public static void testJavaJWT(boolean hmac512) throws Exception {
-        String secret = getSecret(hmac512);
+        byte[] secret = getSecret(hmac512);
         Algorithm jwtAlgorithm = hmac512 ? Algorithm.HMAC512(secret) : Algorithm.HMAC256(secret);
         String print = "java jwt " + (hmac512 ? "HS512" : "HS256") + " ";
         final String token = timedRunE(() -> getPayload(Integer.parseInt(name)).sign(jwtAlgorithm), print + "TE", 1000);
@@ -279,8 +279,8 @@ public class JWSTest {
 
 
     private static void testJose4j(boolean hmac512) throws Exception {
-        String secret = getSecret(hmac512);
-        Key key = new HmacKey((secret).getBytes("UTF-8"));
+        byte[] secret = getSecret(hmac512);
+        Key key = new HmacKey(secret);
 
         RunnableWithException<String> encode = () -> {
 
@@ -315,8 +315,8 @@ public class JWSTest {
     }
 
     private static void testJasonWebToken(boolean hmac512) throws Exception {
-        String secret = getSecret(hmac512);
-        Key key = Keys.hmacShaKeyFor(secret.getBytes());
+        byte[] secret = getSecret(hmac512);
+        Key key = Keys.hmacShaKeyFor(secret);
         String print = "jasonwebtoken " + (hmac512 ? "HS512" : "HS256") + " ";
 
         String jws = timedRunE(() -> {
