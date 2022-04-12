@@ -83,13 +83,7 @@ public class Common {
     }
 
     public static <T> T timedRunE(RunnableWithException<T> r, String text) throws Exception {
-        r.run();// warm up
-        T result = null;
-        long t = System.nanoTime();
-        result = r.run();
-        t = System.nanoTime() - t;
-        System.out.println(text + " - " + (t / 1000) + " micros");
-        return result;
+        return timedRunE(r, text, 1);
     }
     
     
